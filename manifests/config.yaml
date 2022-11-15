@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: weather-service
+data:
+  application.yaml: |-
+    spring.data.mongodb.host: mongo
+    test.message: inside updated count 6 ConfigMap
+    avwx:
+      token: "{cipher}9a73970dce514356a2bd5468d6c2cecd94f54dfcf33a5167ee0cea4323a61aee4f33967f46e48311f2f9ec89bd64bedd5fb0facad2befc47809f7136622d057c"

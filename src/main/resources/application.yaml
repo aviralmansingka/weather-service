@@ -1,0 +1,10 @@
+spring.application.name: weather-service
+server.port: 8081
+management:
+  endpoint:
+    restart:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: restart,health,info,beans,env

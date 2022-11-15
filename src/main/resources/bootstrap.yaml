@@ -1,0 +1,12 @@
+encrypt.key: aviral
+spring:
+  cloud:
+    kubernetes:
+      config:
+        enabled: true
+        sources:
+          - namespace: default
+            name: weather-service
+      reload:
+        enabled: true
+        strategy: restart_context
