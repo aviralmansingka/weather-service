@@ -1,7 +1,8 @@
 plugins {
 	id 'org.springframework.boot' version '2.7.4'
 	id 'io.spring.dependency-management' version '1.0.14.RELEASE'
-  id 'com.google.cloud.tools.jib' version '3.3.1'
+	id 'com.google.cloud.tools.jib' version '3.3.1'
+	id 'com.google.protobuf' version '0.9.1'
 	id 'java'
 }
 
@@ -18,10 +19,15 @@ ext {
 }
 
 dependencies {
+	implementation "io.grpc:grpc-protobuf:1.50.1"
+	implementation "io.grpc:grpc-stub:1.50.1"
+	implementation 'com.google.protobuf:protoc:3.21.4'
 	implementation group: 'io.netty', name: 'netty-resolver-dns-native-macos', classifier: 'osx-aarch_64'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-  implementation 'org.springframework.cloud:spring-cloud-starter-kubernetes-client-config'
+	implementation 'org.springframework.cloud:spring-cloud-starter-kubernetes-client-config'
+	// https://mvnrepository.com/artifact/net.devh/grpc-server-spring-boot-starter
+	implementation 'net.devh:grpc-server-spring-boot-starter:2.13.1.RELEASE'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
@@ -35,4 +41,20 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+protobuf {
+	protoc {
+		artifact = 'com.google.protobuf:protoc:3.21.4'
+	}
+	plugins {
+		grpc {
+			artifact = 'io.grpc:protoc-gen-grpc-java:1.50.2'
+		}
+	}
+	generateProtoTasks {
+		all()*.plugins {
+			grpc {}
+		}
+	}
 }

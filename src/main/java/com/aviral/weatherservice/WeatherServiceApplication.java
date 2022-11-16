@@ -1,5 +1,11 @@
 package com.aviral.weatherservice;
 
+import com.google.protobuf.Timestamp;
+import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.examples.lib.METARRequest;
+import net.devh.boot.grpc.examples.lib.METARResponse;
+import net.devh.boot.grpc.examples.lib.METARServiceGrpc;
+import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,6 +29,33 @@ public class WeatherServiceApplication {
 	@Bean
 	WebClient webClient() {
 		return WebClient.create("https://avwx.rest/api");
+	}
+}
+
+@GrpcService
+class MetarService extends METARServiceGrpc.METARServiceImplBase {
+	@Value("${avwx.token:No Valid Token}")
+	String token;
+	private final WebClient webClient;
+	public MetarService(WebClient webClient) {
+		this.webClient = webClient;
+	}
+
+	@Override
+	public void getWeather(METARRequest request, StreamObserver<METARResponse> responseObserver) {
+		var metar = webClient.get()
+			.uri("/metar/{id}?token={token}", request.getId(), token)
+			.retrieve()
+			.bodyToMono(METAR.class)
+			.log()
+			.block();
+		responseObserver.onNext(METARResponse.newBuilder()
+						.setRaw(metar.raw())
+						.setTimestamp(Timestamp.newBuilder()
+								.setSeconds(metar.time().dt().toEpochSecond())
+								.build())
+				.build());
+		responseObserver.onCompleted();
 	}
 }
 
